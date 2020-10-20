@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from py_expression_eval import Parser
 import logging
 
-import db.postgres as pg
+from db import postgres as pg
 from settings import * 
 
 

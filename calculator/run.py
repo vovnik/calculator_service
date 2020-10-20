@@ -1,5 +1,8 @@
+import repackage
+repackage.up()
+
 import settings
-from calculator.main import run 
+from calculator import run 
 
 import logging 
 

@@ -1,3 +1,6 @@
+import repackage
+repackage.up()
+
 from api.main import app 
 
 
