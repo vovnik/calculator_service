@@ -4,4 +4,4 @@ COPY . /usr/src/app/
 WORKDIR /usr/src/app/
 EXPOSE 5000
 RUN pip install -r requirements.txt
-CMD ["python", "wsgi.py"]
+CMD ["gunicorn","-b 0.0.0.0:5000", "wsgi:app"]
