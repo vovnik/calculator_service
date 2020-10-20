@@ -68,17 +68,17 @@ def get_expression_result(expression_id):
         return jsonify_msg('Wrong URL: "expression_id" should be an integer'), 400
 
     result = db.get_result(expression_id)
-    if result.get('error_code') == 0:
-        result = result.get('result')
+    if result[0].get('error_code') == 0:
+        result = result[0].get('result')
         return jsonify({'result': result}), 200
     
-    if result.get('error_code') == 1:
+    if result[0].get('error_code') == 1:
         result = 'ZeroDivisionError'
-    if result.get('error_code') == 2:
+    if result[0].get('error_code') == 2:
         result = 'OverflowError'
-    if result.get('error_code') == 3:
+    if result[0].get('error_code') == 3:
         result = 'Calculation TimeoutError'
-    if result.get('error_code') == 4:
+    if result[0].get('error_code') == 4:
         result = 'Unexpected error'
 
     return jsonify_msg(result), 200
