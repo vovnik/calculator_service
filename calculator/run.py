@@ -12,8 +12,6 @@ db = pg.Postgres(dbname=DB_NAME, user=DB_USER,
                  host=DB_HOST,
                  port=DB_PORT)
 
-
-
 def setup_logging(debug=False):
     logging_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     level = logging.INFO
