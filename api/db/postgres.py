@@ -140,8 +140,8 @@ class Postgres(Database):
         """
         Making migrations with CREATE ... IF NOT EXISTS scripts 
         """
-        try:
-            for _ in range(CONNECT_ATTEMPTS):
+        for _ in range(CONNECT_ATTEMPTS):
+            try:
                 logger.info('Making migrations...')
                 for migration_file in os.listdir('pg_migrations'):
                     with open(os.path.join('pg_migrations',migration_file), 'r') as migration:
@@ -149,6 +149,6 @@ class Postgres(Database):
                         with self.connect() as conn:
                             with conn.cursor() as cursor:
                                 cursor.execute(query)
-        except psycopg2.OperationalError as e:
-            logger.warning(e)
-            time.sleep(CONNECT_NEXT_ATTEMPT)
+            except psycopg2.OperationalError as e:
+                logger.warning(e)
+                time.sleep(CONNECT_NEXT_ATTEMPT)
