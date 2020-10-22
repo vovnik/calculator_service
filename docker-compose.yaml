@@ -1,11 +1,45 @@
 version: '3'
 services: 
-    calculator_service:
-        build: ./
+    calculator-api:
+        build: api/
         volumes: 
-            - ./:/usr/src/app/
+            - ./api/:/usr/src/app/
         ports: 
             - 5000:5000
-        environment: 
-            PORT: 5000
-            FLASK_DEBUG: 1
+        env_file: 
+            - api_variables.env
+        networks:
+            - internal
+        depends_on:
+            - db_postgres
+    
+    calculator:
+        build: calculator/
+        volumes: 
+            - ./calculator/:/usr/src/app/
+        env_file: 
+            - calculator_variables.env
+        networks:
+            - internal
+        depends_on:
+            - db_postgres
+
+    db_postgres:
+        container_name: db_postgres
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_USER: user
+            POSTGRES_PASSWORD: pass
+            PGDATA: /var/lib/postgresql/data/pgdata
+        ports:
+            - "4200:4200"
+        networks:
+            - internal
+        volumes:
+            - ./data:/var/lib/postgresql/data:rw
+        command: postgres -p 4200 
+
+networks:
+    internal:
+        driver: bridge

@@ -15,7 +15,7 @@ db = pg.Postgres(dbname=DB_NAME, user=DB_USER,
                  password=DB_PASSWORD,
                  host=DB_HOST,
                  port=DB_PORT)
-
+db.migrate()
 
 def jsonify_msg(msg: str):
     return jsonify({"msg": msg})
@@ -24,6 +24,9 @@ def jsonify_msg(msg: str):
 def signal_handler(signum, frame):
     raise TimeoutError("Calculation takes to long!")
 
+@app.route("/")
+def index():
+    return "<h1>index test</h1>"
 
 @app.route("/api/expression", methods=['POST'])
 def post_expression():

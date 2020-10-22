@@ -16,10 +16,10 @@ logger = logging.getLogger(__name__)
 
 result_queue = Queue()
 
-db = pg.Postgres(dbname='calculator_queue_tasks', user='postgres',
-                 password='12345',
-                 host='localhost',
-                 port=5432)
+db = pg.Postgres(dbname=DB_NAME, user=DB_USER,
+                 password=DB_PASSWORD,
+                 host=DB_HOST,
+                 port=DB_PORT)
 
 
 def signal_handler(signum, frame):
@@ -65,13 +65,15 @@ def calculate_worker(task):
 
 def run():
     while True:
+        logger.info(DB_HOST)
         tasks = db.get_tasks(TASK_NUM, DELAY_SEC)
         logger.debug(f'Got {len(tasks)} tasks')
         if len(tasks) == 0:
             time.sleep(QUEUE_WAIT_TIME)
             continue
         # in case 'get_tasks' gets db error
-        if tasks[0].get('msg'):
+        if not tasks[0].get('expression'):
+            time.sleep(QUEUE_WAIT_TIME)
             continue
 
         with Pool(processes=NUM_PROCESSES) as pool:

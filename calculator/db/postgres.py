@@ -4,9 +4,10 @@ from psycopg2.extras import execute_values
 import json
 import time
 import logging
+import os
 
 from .db import Database
-from settings import * 
+from settings import *
 
 
 logger = logging.getLogger(__name__)
@@ -134,3 +135,11 @@ class Postgres(Database):
                 break
         else:
             logger.warning("Database timeout")
+
+    def migrate(self):
+        for migration_file in os.listdir('pg_migrations'):
+            with open(os.path.join('pg_migrations',migration_file), 'r') as migration:
+                query = migration.read()
+                with self.connect() as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute(query)

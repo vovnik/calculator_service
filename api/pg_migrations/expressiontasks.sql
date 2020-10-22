@@ -1,8 +1,4 @@
--- Table: public.ExpressionTasks
-
--- DROP TABLE public."ExpressionTasks";
-
-CREATE TABLE public."ExpressionTasks"
+CREATE TABLE IF NOT EXISTS  public."ExpressionTasks"
 (
     expression_id bigserial NOT NULL,
     expression character varying(512) COLLATE pg_catalog."default" NOT NULL,
@@ -14,11 +10,7 @@ CREATE TABLE public."ExpressionTasks"
 
 TABLESPACE pg_default;
 
--- Index: ExpressionTasks_Cl_IX
-
--- DROP INDEX public."ExpressionTasks_Cl_IX";
-
-CREATE UNIQUE INDEX "ExpressionTasks_Cl_IX"
+CREATE UNIQUE INDEX IF NOT EXISTS "ExpressionTasks_Cl_IX"
     ON public."ExpressionTasks" USING btree
     (expression_id ASC NULLS LAST)
     TABLESPACE pg_default;
