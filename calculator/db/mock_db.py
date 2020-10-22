@@ -29,9 +29,8 @@ class MockDB(Database):
         return tasks
 
     def insert_result_and_clean_queue(self, expression_results):
-        for result in expression_results:
+        for res in expression_results:
             assert int(res[0])
             assert str(res[1])
             assert str(res[2])
-            assert float(res[3])
-            assert int(res[4])
+            assert res[4] is int(res[4]) 

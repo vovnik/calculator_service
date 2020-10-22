@@ -71,7 +71,7 @@ def get_expression_result(expression_id):
 
     result = db.get_result(expression_id)
     if len(result) == 0:
-        return jsonify_msg('Currently there is no such result'), 204
+        return jsonify_msg('Currently there is no such result'), 200
 
     error_code = result[0].get('error_code')
     if error_code == 0:
