@@ -1,26 +1,30 @@
 from flask import Flask, request, jsonify
 from py_expression_eval import Parser
-import logging
 
 from db import postgres as pg
-from settings import * 
+from db.mock_db import MockDB
+from settings import *
 
 
 app = Flask(__name__)
-
-# TODO: to make a good working Flask logging
 
 db = pg.Postgres(dbname=DB_NAME, user=DB_USER,
                  password=DB_PASSWORD,
                  host=DB_HOST,
                  port=DB_PORT)
+
+
 db.migrate()
 
-# Error messages for results with error codes 
-ERROR_MESSAGES = ['', 'ZeroDivisionError',    #error_code 1
-               'OverflowError',               #error_code 2
-               'Calculation TimeoutError',    #error_code 3
-               'Unexpected error']            #error code 4 
+# Error messages for results with error codes
+ERROR_MESSAGES = ['', 'ZeroDivisionError',  # error_code 1
+                  'OverflowError',  # error_code 2
+                  'Calculation TimeoutError',  # error_code 3
+                  'Unexpected error']  # error code 4
+
+def set_mock_db():
+    global db 
+    db = MockDB('mock')
 
 def jsonify_msg(msg: str):
     return jsonify({"msg": msg})
@@ -29,9 +33,11 @@ def jsonify_msg(msg: str):
 def signal_handler(signum, frame):
     raise TimeoutError("Calculation takes to long!")
 
+
 @app.route("/")
 def index():
     return "<h1>index test</h1>"
+
 
 @app.route("/api/expression", methods=['POST'])
 def post_expression():
@@ -46,7 +52,7 @@ def post_expression():
 
     try:
         parser = Parser()
-        # mathematical expression validation (yes, we expect hackers in our network)
+        # mathematical expression validation 
         parsed_expression = parser.parse(expression)
     # "py_expression_eval" uses Exception class for all exceptions except devision by zero and overflow :(
     except Exception:
@@ -66,7 +72,6 @@ def get_expression_result(expression_id):
     try:
         expression_id = int(expression_id)
     except ValueError as e:
-        logger.warning(e)
         return jsonify_msg('Wrong URL: "expression_id" should be an integer'), 400
 
     result = db.get_result(expression_id)

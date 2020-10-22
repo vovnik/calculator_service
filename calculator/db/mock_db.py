@@ -34,3 +34,6 @@ class MockDB(Database):
             assert str(res[1])
             assert str(res[2])
             assert res[4] is int(res[4]) 
+   
+    def migrate(self):
+        pass 
