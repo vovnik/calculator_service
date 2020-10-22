@@ -6,7 +6,6 @@ from db import postgres as pg
 from settings import * 
 
 
-
 app = Flask(__name__)
 
 # TODO: to make a good working Flask logging
@@ -16,6 +15,12 @@ db = pg.Postgres(dbname=DB_NAME, user=DB_USER,
                  host=DB_HOST,
                  port=DB_PORT)
 db.migrate()
+
+# Error messages for results with error codes 
+ERROR_MESSAGES = ['', 'ZeroDivisionError',    #error_code 1
+               'OverflowError',               #error_code 2
+               'Calculation TimeoutError',    #error_code 3
+               'Unexpected error']            #error code 4 
 
 def jsonify_msg(msg: str):
     return jsonify({"msg": msg})
@@ -37,28 +42,22 @@ def post_expression():
     except TypeError:
         return jsonify_msg('No JSON found'), 400
     except KeyError:
-        return jsonify_msg('JSON has wrong structure'), 400
+        return jsonify_msg('JSON has a wrong structure'), 400
 
     try:
         parser = Parser()
         # mathematical expression validation (yes, we expect hackers in our network)
         parsed_expression = parser.parse(expression)
-
     # "py_expression_eval" uses Exception class for all exceptions except devision by zero and overflow :(
     except Exception:
-        return jsonify_msg('Error when parsing expression'), 400
+        return jsonify_msg('Error occured while parsing expression'), 400
 
     # variables matching validation
     variables_set = set(parsed_expression.variables())
     if variables_set != set(variables):
         return jsonify_msg('JSON["variables"] does not match with variables in expression'), 400
 
-    try:
-        expression_id = db.put_task(expression, variables)
-    except Exception as e:
-        logger.warning(e)
-        return jsonify_msg("Internal server error occured"), 500
-
+    expression_id = db.put_task(expression, variables)
     return jsonify(expression_id[0]), 200
 
 
@@ -71,17 +70,13 @@ def get_expression_result(expression_id):
         return jsonify_msg('Wrong URL: "expression_id" should be an integer'), 400
 
     result = db.get_result(expression_id)
-    if result[0].get('error_code') == 0:
+    if len(result) == 0:
+        return jsonify_msg('Currently there is no such result'), 204
+
+    error_code = result[0].get('error_code')
+    if error_code == 0:
         result = result[0].get('result')
         return jsonify({'result': result}), 200
-    
-    if result[0].get('error_code') == 1:
-        result = 'ZeroDivisionError'
-    if result[0].get('error_code') == 2:
-        result = 'OverflowError'
-    if result[0].get('error_code') == 3:
-        result = 'Calculation TimeoutError'
-    if result[0].get('error_code') == 4:
-        result = 'Unexpected error'
 
+    result = ERROR_MESSAGES[error_code]
     return jsonify_msg(result), 200

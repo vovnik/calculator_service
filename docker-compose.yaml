@@ -1,6 +1,7 @@
 version: '3'
 services: 
     calculator-api:
+        container_name: calculator-api
         build: api/
         volumes: 
             - ./api/:/usr/src/app/
@@ -14,6 +15,7 @@ services:
             - db_postgres
     
     calculator:
+        container_name: calculator
         build: calculator/
         volumes: 
             - ./calculator/:/usr/src/app/
